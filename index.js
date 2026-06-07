@@ -1,26 +1,30 @@
 const http = require('http');
 const mineflayer = require('mineflayer');
 
-// Mantém o servidor HTTP vivo para o Render não matar o bot
-http.createServer((req, res) => res.end('Bot Online')).listen(process.env.PORT || 3000);
+let bot = null;
 
-function createBot() {
-    const bot = mineflayer.createBot({
-        host: 'MakerLN.aternos.me',
-        port: 21198,
-        username: 'lunactive2'
-    });
-
-    bot.on('end', () => {
-        console.log('Bot desconectado. Reconectando em 5 segundos...');
-        setTimeout(createBot, 5000);
-    });
-
-    bot.on('error', (err) => console.log('Erro:', err));
+const server = http.createServer((req, res) => {
+    res.setHeader('Access-Control-Allow-Origin', '*'); // Para permitir acesso de qualquer site
     
-    bot.on('spawn', () => {
-        console.log('lunactive2 entrou no servidor!');
-    });
-}
+    if (req.url === '/start') {
+        if (!bot) {
+            bot = mineflayer.createBot({ host: 'MakerLN.aternos.me', port: 21198, username: 'lunactive2' });
+            bot.on('end', () => bot = null);
+            res.end('Bot Ligado');
+        } else {
+            res.end('Bot ja esta rodando');
+        }
+    } else if (req.url === '/stop') {
+        if (bot) {
+            bot.quit();
+            bot = null;
+            res.end('Bot Desligado');
+        } else {
+            res.end('Bot ja esta desligado');
+        }
+    } else {
+        res.end('Servidor Ativo');
+    }
+});
 
-createBot();
+server.listen(process.env.PORT || 3000);
