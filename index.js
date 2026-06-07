@@ -8,11 +8,14 @@ const server = http.createServer((req, res) => {
     
     if (req.url === '/start') {
         if (!bot) {
-            bot = mineflayer.createBot({ 
-                host: 'MakerLN.aternos.me', 
-                port: 21198, 
-                username: 'lunactive2' 
-            });
+bot = mineflayer.createBot({ 
+    host: 'MakerLN.aternos.me', 
+    port: 21198, 
+    username: 'lunactive2',
+    auth: 'offline',
+    version: false, // Deixe false para autodetectar
+    checkTimeoutInterval: 60000 // Aumenta o tempo limite para conexões lentas de modpacks
+});
             
             bot.on('spawn', () => console.log('Bot entrou!'));
             bot.on('end', (reason) => {
